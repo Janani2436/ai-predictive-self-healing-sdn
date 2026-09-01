@@ -1,0 +1,25 @@
+# =============================================================================
+# requirements-dev.txt
+# Development and testing dependencies — Windows development machine
+# Install with: pip install -r requirements-dev.txt
+#
+# These are not needed in the Linux simulation environment.
+# =============================================================================
+
+# Include all runtime dependencies
+-r requirements.txt
+
+# Testing framework
+pytest==8.3.3
+pytest-cov==6.2.1
+
+# Code quality
+flake8==7.3.0
+pylint==3.3.7
+
+# Type checking
+mypy==1.16.1
+
+# Formatting
+black==25.1.0
+isort==6.0.1

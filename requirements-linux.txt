@@ -1,0 +1,55 @@
+# =============================================================================
+# requirements-linux.txt
+# Python dependencies for the Ubuntu/WSL2 simulation machine
+# Install with: pip install -r requirements-linux.txt
+#
+# DO NOT install on the Windows development machine.
+#
+# IMPORTANT — System-level dependencies (NOT pip-installable):
+# These must be installed via apt BEFORE running pip:
+#
+#   sudo apt-get install mininet
+#   sudo apt-get install openvswitch-switch openvswitch-common
+#   sudo apt-get install iperf3
+#   sudo apt-get install gcc python3-dev libffi-dev libssl-dev
+#
+# Ryu installation notes:
+#   - ryu 4.34 is unmaintained upstream (last release May 2020).
+#   - PyPI ryu may fail on newer pip due to pbr/setuptools conflicts.
+#   - Install from faucetsdn/ryu git source (more Python 3.x compatible).
+#   - See docs/ryu_compatibility.md for full analysis.
+#
+# eventlet version is CRITICAL:
+#   - eventlet >= 0.35 breaks ryu's hub.py with Python 3.10+.
+#   - eventlet == 0.33.3 is the verified working version for Python 3.10.
+#   - Do NOT upgrade eventlet without testing the full Ryu stack.
+#
+# Recommended simulation environment:
+#   Ubuntu 22.04 LTS, Python 3.10 (system default), Ryu from faucetsdn git
+#
+# See docs/ryu_compatibility.md for full compatibility analysis.
+# =============================================================================
+
+# Include all cross-platform runtime dependencies
+-r requirements.txt
+
+# eventlet — Ryu's concurrency layer
+# PINNED: 0.33.3 is the last version compatible with ryu 4.34 + Python 3.10
+# DO NOT upgrade without re-testing the full Ryu + OVS stack
+eventlet==0.33.3
+
+# Ryu SDN controller — install from faucetsdn fork (more Python 3.x fixes)
+# If git install fails, fall back to: pip install ryu==4.34
+# See scripts/setup_linux.sh for installation procedure
+# ryu is not listed here as a normal requirement because pip's dependency
+# resolver may try to install it before eventlet, causing version conflicts.
+# Install Ryu manually AFTER eventlet:
+#   pip install eventlet==0.33.3
+#   pip install git+https://github.com/faucetsdn/ryu.git
+#   -- OR --
+#   pip install ryu==4.34
+# See scripts/setup_linux.sh for the automated procedure.
+
+# Scapy — optional, only if packet crafting is needed for experiments
+# Uncomment if required:
+# scapy>=2.5.0

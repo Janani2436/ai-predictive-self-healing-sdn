@@ -1,0 +1,73 @@
+# =============================================================================
+# config.yaml.example
+#
+# Copy this file to config.yaml and adjust values for your environment.
+# config.yaml is git-ignored (it may contain machine-specific paths).
+# config.yaml.example is committed to the repository.
+# =============================================================================
+
+# SDN Controller
+controller:
+  host: 127.0.0.1          # Ryu controller bind address
+  port: 6633               # OpenFlow TCP port
+  openflow_version: 1.3    # Must remain 1.3
+
+# Network Monitoring
+monitoring:
+  poll_interval_seconds: 5          # How often to poll port statistics
+  link_capacity_mbps: 100.0         # Assumed link capacity for utilization calc
+  max_delay_ms: 200.0               # Normalisation ceiling for delay
+  max_loss_pct: 100.0               # Normalisation ceiling for packet loss
+
+# Routing / Health Scoring
+routing:
+  health_weights:
+    delay: 0.40            # Weight for delay component (sum must = 1.0)
+    packet_loss: 0.35      # Weight for packet loss component
+    utilization: 0.25      # Weight for utilization component
+  congestion_threshold_pct: 80.0    # Utilization % to classify as congested
+  failure_loss_threshold_pct: 5.0   # Packet loss % to classify as failure
+
+# Machine Learning
+ml:
+  model_dir: ml/models/             # Directory for saved models
+  random_state: 42                  # Fixed seed for reproducibility
+  test_size: 0.20                   # Fraction of data for test split
+  n_estimators: 100                 # Random Forest: number of trees
+  max_depth: ~                      # Random Forest: max depth (null = unlimited)
+  min_samples_split: 2              # Random Forest: min samples to split node
+
+# Dataset
+dataset:
+  raw_dir: dataset/raw/
+  processed_dir: dataset/processed/
+  min_samples_per_class: 100        # Warn if any class has fewer samples
+  min_total_samples: 500            # Warn if total dataset smaller than this
+
+# Experiment Settings
+experiments:
+  results_dir: experiments/results/
+  default_duration_seconds: 300
+  warmup_seconds: 30
+
+# Topology (for path optimizer graph)
+topology:
+  # Node names must match switch names in campus_topology.py
+  switches:
+    - C1
+    - D1
+    - D2
+    - A1
+    - A2
+    - A3
+    - A4
+  hosts:
+    - H1
+    - H2
+    - H3
+    - H4
+
+# Logging
+logging:
+  level: INFO              # DEBUG / INFO / WARNING / ERROR
+  file: logs/sdn.log       # Set to null to disable file logging

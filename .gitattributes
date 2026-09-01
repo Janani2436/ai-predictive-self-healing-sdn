@@ -1,0 +1,30 @@
+# =============================================================================
+# .gitattributes
+# Ensure consistent line endings across Windows and Ubuntu machines.
+# =============================================================================
+
+# Default: normalise to LF on checkout everywhere
+* text=auto eol=lf
+
+# Shell scripts MUST have LF — they will break on Ubuntu with CRLF
+*.sh text eol=lf
+
+# Python files — LF
+*.py text eol=lf
+
+# Markdown and text files — LF
+*.md text eol=lf
+*.txt text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.cfg text eol=lf
+*.ini text eol=lf
+*.json text eol=lf
+*.example text eol=lf
+
+# Binary files — no line ending conversion
+*.joblib binary
+*.pkl binary
+*.png binary
+*.pdf binary
+*.svg binary

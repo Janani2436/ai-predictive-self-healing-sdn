@@ -1,0 +1,89 @@
+# =============================================================================
+# .gitignore — AI-Driven Predictive Self-Healing SDN
+# =============================================================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.env.local
+
+# Environment variable files (may contain secrets)
+.env
+*.env
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# mypy
+.mypy_cache/
+
+# IDE and editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs (generated at runtime — keep directory, ignore contents)
+logs/*.log
+*.log
+!logs/.gitkeep
+
+# ML model artifacts (large binary files — regenerate from training)
+ml/models/*.joblib
+ml/models/*.pkl
+ml/models/*.model
+# Keep the models directory itself and current_model.txt
+!ml/models/.gitkeep
+
+# Dataset — raw experiment data (can be large; regenerate from experiments)
+dataset/raw/experiment_*.csv
+# Keep synthetic test data and directory structure
+!dataset/raw/.gitkeep
+!dataset/raw/synthetic_*.csv
+
+# Processed datasets (regenerated from preprocessing pipeline)
+dataset/processed/*.csv
+!dataset/processed/.gitkeep
+
+# Experiment results (generated on simulation machine)
+experiments/results/
+!experiments/results/.gitkeep
+
+# Visualisation plots (regenerated from data)
+visualization/plots/*.png
+visualization/plots/*.pdf
+visualization/plots/*.svg
+!visualization/plots/.gitkeep
+
+# Temporary files
+*.tmp
+*.bak
+*.orig
+tmp/
+
+# Mininet/OVS runtime files (Linux simulation machine only)
+*.pid
+mn.log
+
+# OS-specific
+.DS_Store
+desktop.ini

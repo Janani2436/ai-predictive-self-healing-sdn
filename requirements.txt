@@ -1,0 +1,34 @@
+# =============================================================================
+# requirements.txt
+# Runtime dependencies — cross-platform (Windows + Ubuntu)
+# Install with: pip install -r requirements.txt
+#
+# NOTE: Mininet, Open vSwitch, and Ryu are NOT pip-installable on Windows.
+# They are Linux system-level dependencies listed in requirements-linux.txt
+# and documented in scripts/setup_linux.sh.
+#
+# Version note: Pinned versions below are the latest Python 3.14-compatible
+# releases as of August 2026. The Ubuntu simulation machine should use the
+# same versions to ensure consistency.
+# =============================================================================
+
+# Numerical and data processing
+numpy>=2.2.0
+pandas>=2.2.0
+
+# Machine learning
+scikit-learn>=1.6.0
+joblib>=1.4.0
+
+# Graph algorithms and topology representation
+networkx>=3.3
+
+# Visualisation
+matplotlib>=3.9.0
+
+# Configuration management
+python-dotenv>=1.0.0
+PyYAML>=6.0.1
+
+# Progress bars (experiment scripts)
+tqdm>=4.66.0
