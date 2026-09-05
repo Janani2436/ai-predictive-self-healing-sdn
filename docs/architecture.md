@@ -201,7 +201,7 @@ feature_extractor output
 
 ## Phase 2 Implementation Status
 
-### topology/simple_topology.py — WINDOWS-DEV-TESTED (structure); LINUX-SIMULATION-REQUIRED (execution)
+### topology/simple_topology.py — WINDOWS-DEV-TESTED (structure); LINUX-TESTED (execution)
 
 Implements the minimal `H1 --- S1 --- H2` topology.
 
@@ -215,7 +215,7 @@ Key design decisions:
 - All parameters (controller IP/port, link bandwidth, delay) are configurable
   via CLI arguments or `config.yaml` — no hard-coded values.
 
-### topology/topology_utils.py — WINDOWS-COMPATIBLE (pure functions); LINUX-SIMULATION-REQUIRED (OVS calls)
+### topology/topology_utils.py — WINDOWS-COMPATIBLE (pure functions); LINUX-TESTED (OVS calls)
 
 Contains:
 - `load_config()` — reads `config.yaml`, falls back to safe defaults
@@ -229,7 +229,7 @@ Contains:
 
 ## Phase 3 Implementation Status
 
-### controller/simple_controller.py — WINDOWS-DEV-TESTED (structure); LINUX-SIMULATION-REQUIRED (execution)
+### controller/simple_controller.py — WINDOWS-DEV-TESTED (structure); LINUX-TESTED (execution)
 
 Primary Ryu application for this project. Key design decisions:
 
@@ -247,7 +247,7 @@ Primary Ryu application for this project. Key design decisions:
   to the controller for learning, not just the header.
 - `_fmt_dpid()` formats datapath IDs as 16-digit hex for readable log output.
 
-### controller/learning_switch.py — WINDOWS-DEV-TESTED (structure); LINUX-SIMULATION-REQUIRED (execution)
+### controller/learning_switch.py — WINDOWS-DEV-TESTED (structure); LINUX-TESTED (execution)
 
 Standalone baseline controller. Functionally equivalent to simple_controller.py
 at Phase 3 level, but designed to remain a simple reactive-only controller

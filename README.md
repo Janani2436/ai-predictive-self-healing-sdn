@@ -14,8 +14,8 @@ Final-year engineering project.
 | Steering / configuration | ✅ Complete |
 | Requirements files | ✅ Complete |
 | Documentation skeleton | ✅ Complete |
-| Mininet topology | 🔲 LINUX-SIMULATION-REQUIRED |
-| Ryu controller | 🔲 LINUX-SIMULATION-REQUIRED |
+| Mininet topology | ✅ LINUX-TESTED |
+| Ryu controller | ✅ LINUX-TESTED |
 | Traffic generation | 🔲 LINUX-SIMULATION-REQUIRED |
 | Network monitoring | 🔲 LINUX-SIMULATION-REQUIRED |
 | Dataset generation | 🔲 LINUX-SIMULATION-REQUIRED |
@@ -253,18 +253,19 @@ Prediction API → label + confidence
 
 ## Results
 
-> No experimental results yet. All results will be generated from actual
-> Mininet experiments on the personal simulation machine.
+> No experimental results yet. The Phase 2/3 Linux integration path has been
+> verified on the personal Ubuntu/WSL2 simulation machine. Full experiments remain
+> to be executed.
 >
-> Label: **LINUX-SIMULATION-REQUIRED**
+> Label: **LINUX-TESTED (Phase 2/3 integration only)**
 
 ---
 
 ## Limitations (Current)
 
-- No real network experiments executed yet (Linux simulation machine not yet configured)
+- No full network experiments executed yet; Phase 2/3 Linux integration has been verified
 - ML model not yet trained on real data
-- Ryu/OpenFlow integration not yet verified
+- Ryu/OpenFlow integration verified for the Phase 2/3 simple topology
 - All performance claims require Linux execution to validate
 
 ---

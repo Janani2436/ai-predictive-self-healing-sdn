@@ -227,3 +227,38 @@ Summary JSON format:
   "notes": "Not yet executed"
 }
 ```
+
+---
+
+## Phase 2/3 Linux Integration Verification
+
+**Status: LINUX-TESTED**
+
+This verification confirms the existing Phase 2 simple topology and Phase 3
+Ryu controller operate together on Ubuntu/WSL2.
+
+**Environment:**
+- Ubuntu 22.04.5 LTS
+- Python 3.10.12
+- Mininet 2.3.0
+- Open vSwitch 2.17.12
+- Ryu 4.34 from the Faucetsdn repository
+- Eventlet 0.33.3
+- OpenFlow 1.3
+
+**Verified procedure and observations:**
+1. Ryu `simple_controller.py` started successfully on TCP port 6653.
+2. Mininet started the existing `H1 --- S1 --- H2` topology successfully.
+3. Switch `s1` was configured for OpenFlow 1.3 and the version was confirmed.
+4. OVS was configured to connect to `tcp:127.0.0.1:6653`.
+5. `ovs-vsctl get Controller s1 is_connected` returned `true`.
+6. `pingall` completed with 0% packet loss and 2/2 packets received.
+7. `ovs-ofctl -O OpenFlow13 dump-flows s1` showed learned h1-to-h2 and
+   h2-to-h1 forwarding flows with observed packet counters.
+8. The OpenFlow table-miss flow was present with action `CONTROLLER:65535`.
+
+**Important scope limitation:**
+
+This verifies Phase 2/3 Linux integration only. The congestion, failure,
+traffic-load, ML, predictive rerouting, and performance experiments remain
+PLANNED and require separate execution and measurement.

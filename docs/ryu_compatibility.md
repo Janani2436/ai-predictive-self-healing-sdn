@@ -254,6 +254,6 @@ because:
 | Ryu compatibility analysis | WINDOWS-DEV-TESTED (research only) |
 | Recommended Python version identified | WINDOWS-DEV-TESTED |
 | eventlet version fix applied | WINDOWS-DEV-TESTED |
-| Actual Ryu installation on Ubuntu | LINUX-SIMULATION-REQUIRED |
-| Actual OF1.3 handshake verified | LINUX-SIMULATION-REQUIRED |
-| Ryu + OVS + Mininet end-to-end | LINUX-SIMULATION-REQUIRED |
+| Actual Ryu installation on Ubuntu | LINUX-TESTED |
+| Actual OF1.3 handshake verified | LINUX-TESTED |
+| Ryu + OVS + Mininet end-to-end | LINUX-TESTED |
