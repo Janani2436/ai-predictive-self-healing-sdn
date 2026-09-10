@@ -71,3 +71,8 @@ topology:
 logging:
   level: INFO              # DEBUG / INFO / WARNING / ERROR
   file: logs/sdn.log       # Set to null to disable file logging
+
+traffic:
+  normal_rate_mbps: 5.0
+  congestion_rate_mbps: 80.0
+  default_duration_seconds: 10
