@@ -87,3 +87,7 @@ mn.log
 # OS-specific
 .DS_Store
 desktop.ini
+
+# Runtime experiment logs
+logs/monitoring/
+logs/traffic/
