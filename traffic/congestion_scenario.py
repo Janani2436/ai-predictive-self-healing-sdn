@@ -43,10 +43,14 @@ def run_congestion_scenario(
     Therefore, the flows overlap in time.
     """
     if duration_seconds <= 0:
-        raise ValueError("duration_seconds must be greater than zero")
+        raise ValueError(
+            "duration_seconds must be greater than zero"
+        )
 
     if rate_mbps <= 0:
-        raise ValueError("rate_mbps must be greater than zero")
+        raise ValueError(
+            "rate_mbps must be greater than zero"
+        )
 
     h1 = network.get("h1")
     h2 = network.get("h2")
@@ -92,7 +96,7 @@ def run_congestion_scenario(
         for client in clients:
             output, _ = client["process"].communicate()
 
-            record = {
+            result = {
                 "timestamp": datetime.now().isoformat(),
                 "source": client["source"],
                 "destination_ip": client["destination_ip"],
@@ -104,15 +108,26 @@ def run_congestion_scenario(
             }
 
             try:
-                record["iperf3"] = json.loads(output)
+                result["iperf3"] = json.loads(output)
             except json.JSONDecodeError:
-                record["iperf3"] = None
+                result["iperf3"] = None
                 logger.warning(
                     "[TRAFFIC] Could not parse iperf3 JSON from %s",
                     client["source"],
                 )
 
-            results.append(record)
+            if isinstance(result["iperf3"], dict):
+                from traffic.traffic_generator import (
+                    extract_receiver_udp_stats,
+                )
+
+                result["receiver_stats"] = (
+                    extract_receiver_udp_stats(
+                        result["iperf3"]
+                    )
+                )
+
+            results.append(result)
 
         for result in results:
             save_traffic_result(
@@ -121,7 +136,8 @@ def run_congestion_scenario(
             )
 
         logger.info(
-            "[TRAFFIC] Simultaneous high-rate scenario completed: %d flows",
+            "[TRAFFIC] Simultaneous high-rate scenario "
+            "completed: %d flows",
             len(results),
         )
 
@@ -130,3 +146,19 @@ def run_congestion_scenario(
     finally:
         for server in servers:
             stop_iperf_server(server)
+
+
+def main() -> None:
+    """
+    Standalone execution is intentionally not implemented.
+
+    The scenario requires an active CampusTopology Mininet network.
+    """
+    print(
+        "congestion_scenario.py is a scenario module and must "
+        "be invoked with an active CampusTopology Mininet network."
+    )
+
+
+if __name__ == "__main__":
+    main()

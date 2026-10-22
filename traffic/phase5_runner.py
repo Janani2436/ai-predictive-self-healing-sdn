@@ -26,6 +26,7 @@ import time
 from topology.campus_topology import CampusTopology
 from traffic.congestion_scenario import run_congestion_scenario
 from traffic.normal_traffic import run_normal_traffic
+from experiments.dataset_collector import collect_experiment
 
 
 logger = logging.getLogger(__name__)
@@ -115,6 +116,63 @@ def wait_for_connectivity(
     return False
 
 
+def collect_scenario_results(
+    network,
+    results: list[dict],
+    scenario: str,
+    label: str,
+    measurement_start_time: float,
+    measurement_end_time: float,
+) -> None:
+    """Save real traffic and monitoring measurements for each flow."""
+    for result in results:
+        source_name = result.get("source")
+        destination_ip = result.get("destination_ip")
+
+        if not source_name or not destination_ip:
+            raise ValueError(
+                f"Traffic result missing source or destination: {result}"
+            )
+
+        source = network.get(source_name)
+        destination = next(
+            (host for host in network.hosts
+             if host.IP() == destination_ip),
+            None,
+        )
+
+        if destination is None:
+            raise ValueError(
+                f"Could not find destination host for IP {destination_ip}"
+            )
+
+        flow_scenario = f"{scenario}_{source.name}_{destination.name}"
+
+        csv_file, metadata_file = collect_experiment(
+            network=network,
+            scenario=flow_scenario,
+            source=source,
+            destination=destination,
+            traffic_result=result,
+            traffic_rate_mbps=(
+                float(result["rate_mbps"])
+                if result.get("rate_mbps") is not None
+                else -1.0
+            ),
+            label=label,
+            wait_seconds=0,
+            measurement_start_time=measurement_start_time,
+            measurement_end_time=measurement_end_time,
+        )
+
+        logger.info(
+            "[PHASE7] Saved %s dataset: %s (metadata: %s)",
+            flow_scenario,
+            csv_file,
+            metadata_file,
+        )
+
+
 def run_phase5(
     controller_ip: str = "127.0.0.1",
     controller_port: int = 6653,
@@ -178,10 +236,21 @@ def run_phase5(
             "[PHASE5] Starting normal traffic scenario."
         )
 
+        normal_start_time = time.time()
         normal_results = run_normal_traffic(
             network=network,
             duration_seconds=duration_seconds,
             rate_mbps=normal_rate_mbps,
+        )
+        normal_end_time = time.time()
+
+        collect_scenario_results(
+            network=network,
+            results=normal_results,
+            scenario="normal",
+            label="NORMAL",
+            measurement_start_time=normal_start_time,
+            measurement_end_time=normal_end_time,
         )
 
         logger.info(
@@ -223,10 +292,21 @@ def run_phase5(
             "traffic scenario."
         )
 
+        congestion_start_time = time.time()
         congestion_results = run_congestion_scenario(
             network=network,
             duration_seconds=duration_seconds,
             rate_mbps=congestion_rate_mbps,
+        )
+        congestion_end_time = time.time()
+
+        collect_scenario_results(
+            network=network,
+            results=congestion_results,
+            scenario="congestion",
+            label="CONGESTION",
+            measurement_start_time=congestion_start_time,
+            measurement_end_time=congestion_end_time,
         )
 
         logger.info(

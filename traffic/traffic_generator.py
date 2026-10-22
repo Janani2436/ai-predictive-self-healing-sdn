@@ -9,6 +9,7 @@ inside the Mininet smart-campus simulation.
 
 import json
 import logging
+import re
 import os
 import subprocess
 import time
@@ -79,8 +80,8 @@ def start_iperf_client(
     """
     Start an iperf3 client asynchronously from a Mininet host.
 
-    The returned process can be started alongside other clients so that
-    multiple traffic flows can run simultaneously.
+    The client requests server-side JSON output so receiver-side
+    UDP measurements can be preserved in the returned JSON.
     """
     if duration_seconds <= 0:
         raise ValueError(
@@ -101,6 +102,7 @@ def start_iperf_client(
         "-t",
         str(duration_seconds),
         "-J",
+        "--get-server-output",
     ]
 
     protocol = "tcp"
@@ -132,6 +134,160 @@ def start_iperf_client(
         text=True,
     )
 
+
+def extract_receiver_udp_stats(
+    iperf_result: dict,
+) -> dict[str, float] | None:
+    """
+    Extract receiver-side UDP measurements from iperf3 JSON.
+
+    Supports both:
+    - server_output_json, when provided by iperf3
+    - server_output_text, which is the format observed in the
+      actual Mininet iperf3 3.9 experiment
+
+    Receiver throughput is taken from the final aggregate
+    receiver line in server output text. No values are inferred
+    when receiver data is unavailable.
+    """
+    server_output = iperf_result.get("server_output_json")
+
+    if isinstance(server_output, dict):
+        end = server_output.get("end")
+
+        if isinstance(end, dict):
+            streams = end.get("streams", [])
+
+            if isinstance(streams, list) and streams:
+                receiver_streams = []
+
+                for stream in streams:
+                    if not isinstance(stream, dict):
+                        continue
+
+                    udp = stream.get("udp")
+
+                    if not isinstance(udp, dict):
+                        continue
+
+                    if udp.get("sender") is False:
+                        receiver_streams.append(udp)
+
+                if receiver_streams:
+                    receiver_packets = sum(
+                        float(stream.get("packets", 0))
+                        for stream in receiver_streams
+                    )
+
+                    receiver_lost_packets = sum(
+                        float(stream.get("lost_packets", 0))
+                        for stream in receiver_streams
+                    )
+
+                    receiver_jitter_values = [
+                        float(stream["jitter_ms"])
+                        for stream in receiver_streams
+                        if "jitter_ms" in stream
+                    ]
+
+                    intervals = server_output.get(
+                        "intervals",
+                        [],
+                    )
+
+                    throughput_values = []
+
+                    if isinstance(intervals, list):
+                        for interval in intervals:
+                            if not isinstance(interval, dict):
+                                continue
+
+                            sums = interval.get("sum")
+
+                            if not isinstance(sums, dict):
+                                continue
+
+                            if sums.get("sender") is False:
+                                bits_per_second = sums.get(
+                                    "bits_per_second"
+                                )
+
+                                if bits_per_second is not None:
+                                    throughput_values.append(
+                                        float(bits_per_second)
+                                    )
+
+                    if throughput_values:
+                        return {
+                            "throughput_mbps": (
+                                throughput_values[-1] / 1_000_000
+                            ),
+                            "packets": receiver_packets,
+                            "lost_packets": (
+                                receiver_lost_packets
+                            ),
+                            "loss_pct": (
+                                receiver_lost_packets
+                                / (
+                                    receiver_packets
+                                    + receiver_lost_packets
+                                )
+                                * 100.0
+                                if (
+                                    receiver_packets
+                                    + receiver_lost_packets
+                                ) > 0
+                                else 0.0
+                            ),
+                            "jitter_ms": (
+                                sum(receiver_jitter_values)
+                                / len(receiver_jitter_values)
+                                if receiver_jitter_values
+                                else -1.0
+                            ),
+                        }
+
+    server_text = iperf_result.get(
+        "server_output_text"
+    )
+
+    if not isinstance(server_text, str):
+        return None
+
+    receiver_pattern = re.compile(
+        r"\[\s*\d+\]\s+"
+        r"[\d.]+-[\d.]+\s+sec\s+"
+        r"[\d.]+\s+"
+        r"(?:K|M|G)Bytes\s+"
+        r"([\d.]+)\s+Mbits/sec\s+"
+        r"([\d.]+)\s+ms\s+"
+        r"(\d+)/(\d+)\s+"
+        r"\([\d.]+%\)\s+receiver"
+    )
+
+    match = receiver_pattern.search(server_text)
+
+    if match is None:
+        return None
+
+    throughput_mbps = float(match.group(1))
+    jitter_ms = float(match.group(2))
+    lost_packets = int(match.group(3))
+    total_packets = int(match.group(4))
+
+    loss_pct = (
+        lost_packets / total_packets * 100.0
+        if total_packets > 0
+        else 0.0
+    )
+
+    return {
+        "throughput_mbps": throughput_mbps,
+        "packets": total_packets,
+        "lost_packets": lost_packets,
+        "loss_pct": loss_pct,
+        "jitter_ms": jitter_ms,
+    }
 
 def run_iperf_client(
     source: Any,
@@ -178,6 +334,13 @@ def run_iperf_client(
             "from %s",
             source.name,
         )
+
+    if isinstance(result["iperf3"], dict):
+        receiver_stats = extract_receiver_udp_stats(
+            result["iperf3"]
+        )
+
+        result["receiver_stats"] = receiver_stats
 
     return result
 
